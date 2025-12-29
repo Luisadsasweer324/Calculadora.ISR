@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalculaMX - Calculadoras Financieras y Guías para México</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 20px;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 3rem 0;
+            margin-top: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .calculator-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .calculator-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .calc-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .calc-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideDown 0.5s;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 500px; }
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .result-value {
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .calc-title {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">💰 CalculaMX</div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Calculadoras Financieras para México</h1>
+            <p>Herramientas gratuitas para tomar mejores decisiones financieras</p>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="tabs">
+                <button class="tab active" onclick="showCalculator('isr')">ISR (Impuesto)</button>
+                <button class="tab" onclick="showCalculator('nomina')">Nómina</button>
+                <button class="tab" onclick="showCalculator('credito')">Crédito</button>
+                <button class="tab" onclick="showCalculator('ahorro')">Ahorro</button>
+                <button class="tab" onclick="showCalculator('inversion')">Inversión</button>
+            </div>
+
+            <!-- Calculadora ISR -->
+            <div id="isr" class="calculator-section active">
+                <div class="calc-card">
+                    <h2 class="calc-title">Calculadora de ISR 2025</h2>
+                    <form id="isrForm">
+                        <div class="form-group">
+                            <label for="salarioMensual">Salario Mensual Bruto ($)</label>
+                            <input type="number" id="salarioMensual" placeholder="15000" required>
+                        </div>
+                        <button type="submit" class="btn">Calcular ISR</button>
+                    </form>
+                    <div id="isrResult" class="result">
+                        <div class="result-item">
+                            <span class="result-label">Salario Bruto Mensual:</span>
+                            <span class="result-value" id="brutoMensual">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">ISR Mensual:</span>
+                            <span class="result-value" id="isrMensual">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Salario Neto Mensual:</span>
+                            <span class="result-value" id="netoMensual">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Salario Neto Anual:</span>
+                            <span class="result-value" id="netoAnual">$0</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <h3>¿Qué es el ISR?</h3>
+                        <p>El Impuesto Sobre la Renta (ISR) es un impuesto que se aplica a los ingresos de las personas en México. Se calcula de forma progresiva según tu nivel de ingresos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculadora de Nómina -->
+            <div id="nomina" class="calculator-section">
+                <div class="calc-card">
+                    <h2 class="calc-title">Calculadora de Nómina Completa</h2>
+                    <form id="nominaForm">
+                        <div class="form-group">
+                            <label for="salarioBruto">Salario Bruto Mensual ($)</label>
+                            <input type="number" id="salarioBruto" placeholder="20000" required>
+                        </div>
+                        <button type="submit" class="btn">Calcular Nómina</button>
+                    </form>
+                    <div id="nominaResult" class="result">
+                        <div class="result-item">
+                            <span class="result-label">Salario Bruto:</span>
+                            <span class="result-value" id="nomBruto">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">IMSS (Obrero):</span>
+                            <span class="result-value" id="nomImss">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">ISR:</span>
+                            <span class="result-value" id="nomIsr">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Salario Neto:</span>
+                            <span class="result-value" id="nomNeto">$0</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <h3>Deducciones de Nómina</h3>
+                        <p>Tu salario neto es lo que realmente recibes después de descontar IMSS, ISR y otras retenciones obligatorias.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculadora de Crédito -->
+            <div id="credito" class="calculator-section">
+                <div class="calc-card">
+                    <h2 class="calc-title">Calculadora de Crédito e Intereses</h2>
+                    <form id="creditoForm">
+                        <div class="form-group">
+                            <label for="montoPrestamo">Monto del Préstamo ($)</label>
+                            <input type="number" id="montoPrestamo" placeholder="100000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tasaInteres">Tasa de Interés Anual (%)</label>
+                            <input type="number" id="tasaInteres" step="0.1" placeholder="12" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="plazoMeses">Plazo (meses)</label>
+                            <input type="number" id="plazoMeses" placeholder="24" required>
+                        </div>
+                        <button type="submit" class="btn">Calcular Crédito</button>
+                    </form>
+                    <div id="creditoResult" class="result">
+                        <div class="result-item">
+                            <span class="result-label">Pago Mensual:</span>
+                            <span class="result-value" id="pagoMensual">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Total de Intereses:</span>
+                            <span class="result-value" id="totalIntereses">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Total a Pagar:</span>
+                            <span class="result-value" id="totalPagar">$0</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <h3>Consejos para tu Crédito</h3>
+                        <p>Compara diferentes opciones antes de decidir. Una tasa de interés más baja puede ahorrarte miles de pesos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculadora de Ahorro -->
+            <div id="ahorro" class="calculator-section">
+                <div class="calc-card">
+                    <h2 class="calc-title">Calculadora de Ahorro</h2>
+                    <form id="ahorroForm">
+                        <div class="form-group">
+                            <label for="ahorroMensual">Ahorro Mensual ($)</label>
+                            <input type="number" id="ahorroMensual" placeholder="2000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tasaAhorro">Tasa de Interés Anual (%)</label>
+                            <input type="number" id="tasaAhorro" step="0.1" placeholder="7" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="plazoAhorro">Plazo (años)</label>
+                            <input type="number" id="plazoAhorro" placeholder="5" required>
+                        </div>
+                        <button type="submit" class="btn">Calcular Ahorro</button>
+                    </form>
+                    <div id="ahorroResult" class="result">
+                        <div class="result-item">
+                            <span class="result-label">Total Ahorrado:</span>
+                            <span class="result-value" id="totalAhorrado">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Intereses Ganados:</span>
+                            <span class="result-value" id="interesesGanados">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Total Final:</span>
+                            <span class="result-value" id="totalFinal">$0</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <h3>El Poder del Ahorro</h3>
+                        <p>Ahorrar consistentemente, incluso pequeñas cantidades, puede generar grandes resultados gracias al interés compuesto.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculadora de Inversión -->
+            <div id="inversion" class="calculator-section">
+                <div class="calc-card">
+                    <h2 class="calc-title">Calculadora de Inversión (Interés Compuesto)</h2>
+                    <form id="inversionForm">
+                        <div class="form-group">
+                            <label for="capitalInicial">Capital Inicial ($)</label>
+                            <input type="number" id="capitalInicial" placeholder="50000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="aportacionMensual">Aportación Mensual ($)</label>
+                            <input type="number" id="aportacionMensual" placeholder="1000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tasaInversion">Rendimiento Anual Esperado (%)</label>
+                            <input type="number" id="tasaInversion" step="0.1" placeholder="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="plazoInversion">Plazo (años)</label>
+                            <input type="number" id="plazoInversion" placeholder="10" required>
+                        </div>
+                        <button type="submit" class="btn">Calcular Inversión</button>
+                    </form>
+                    <div id="inversionResult" class="result">
+                        <div class="result-item">
+                            <span class="result-label">Total Invertido:</span>
+                            <span class="result-value" id="totalInvertido">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Rendimientos:</span>
+                            <span class="result-value" id="rendimientos">$0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Valor Final:</span>
+                            <span class="result-value" id="valorFinal">$0</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <h3>Inversión a Largo Plazo</h3>
+                        <p>El interés compuesto es una de las herramientas más poderosas para construir riqueza. Cuanto antes empieces, mejores resultados obtendrás.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>100% Gratis</h3>
+                    <p>Todas nuestras calculadoras son completamente gratuitas</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privado y Seguro</h3>
+                    <p>Tus datos se calculan localmente, no guardamos información</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Funciona en Móvil</h3>
+                    <p>Calcula desde cualquier dispositivo</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🇲🇽</div>
+                    <h3>Para México</h3>
+                    <p>Tasas y cálculos actualizados para 2025</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 CalculaMX - Calculadoras Financieras para México</p>
+            <p style="margin-top: 0.5rem; opacity: 0.8;">Herramientas educativas. Consulta con un profesional para decisiones financieras importantes.</p>
+        </div>
+    </footer>
+
+    <script>
+        function showCalculator(id) {
+            document.querySelectorAll('.calculator-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('es-MX', {
+                style: 'currency',
+                currency: 'MXN'
+            }).format(amount);
+        }
+
+        // Calculadora ISR
+        document.getElementById('isrForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const salario = parseFloat(document.getElementById('salarioMensual').value);
+            const anual = salario * 12;
+            
+            let limiteInferior, cuotaFija, porcentajeExcedente;
+            
+            if (anual <= 7735.00) {
+                limiteInferior = 0.01; cuotaFija = 0; porcentajeExcedente = 1.92;
+            } else if (anual <= 65651.07) {
+                limiteInferior = 7735.00; cuotaFija = 148.51; porcentajeExcedente = 6.40;
+            } else if (anual <= 115375.90) {
+                limiteInferior = 65651.07; cuotaFija = 3855.14; porcentajeExcedente = 10.88;
+            } else if (anual <= 134119.41) {
+                limiteInferior = 115375.90; cuotaFija = 9265.20; porcentajeExcedente = 16.00;
+            } else if (anual <= 160577.65) {
+                limiteInferior = 134119.41; cuotaFija = 12264.16; porcentajeExcedente = 17.92;
+            } else if (anual <= 323862.00) {
+                limiteInferior = 160577.65; cuotaFija = 17005.47; porcentajeExcedente = 21.36;
+            } else if (anual <= 510451.00) {
+                limiteInferior = 323862.00; cuotaFija = 51883.01; porcentajeExcedente = 23.52;
+            } else if (anual <= 974535.03) {
+                limiteInferior = 510451.00; cuotaFija = 95768.74; porcentajeExcedente = 30.00;
+            } else if (anual <= 1299380.04) {
+                limiteInferior = 974535.03; cuotaFija = 234993.95; porcentajeExcedente = 32.00;
+            } else {
+                limiteInferior = 1299380.04; cuotaFija = 338944.34; porcentajeExcedente = 35.00;
+            }
+            
+            const excedente = anual - limiteInferior;
+            const impuestoMarginal = excedente * (porcentajeExcedente / 100);
+            const isrAnual = cuotaFija + impuestoMarginal;
+            const isrMensual = isrAnual / 12;
+            const neto = salario - isrMensual;
+            
+            document.getElementById('brutoMensual').textContent = formatMoney(salario);
+            document.getElementById('isrMensual').textContent = formatMoney(isrMensual);
+            document.getElementById('netoMensual').textContent = formatMoney(neto);
+            document.getElementById('netoAnual').textContent = formatMoney(neto * 12);
+            document.getElementById('isrResult').classList.add('show');
+        });
+
+        // Calculadora de Nómina
+        document.getElementById('nominaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const bruto = parseFloat(document.getElementById('salarioBruto').value);
+            const imss = bruto * 0.0252;
+            const anual = bruto * 12;
+            
+            let isrMensual = 0;
+            if (anual > 7735) {
+                const excedente = anual - 7735;
+                isrMensual = (148.51 + (excedente * 0.064)) / 12;
+            }
+            
+            const neto = bruto - imss - isrMensual;
+            
+            document.getElementById('nomBruto').textContent = formatMoney(bruto);
+            document.getElementById('nomImss').textContent = formatMoney(imss);
+            document.getElementById('nomIsr').textContent = formatMoney(isrMensual);
+            document.getElementById('nomNeto').textContent = formatMoney(neto);
+            document.getElementById('nominaResult').classList.add('show');
+        });
+
+        // Calculadora de Crédito
+        document.getElementById('creditoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const monto = parseFloat(document.getElementById('montoPrestamo').value);
+            const tasaAnual = parseFloat(document.getElementById('tasaInteres').value);
+            const meses = parseInt(document.getElementById('plazoMeses').value);
+            
+            const tasaMensual = tasaAnual / 12 / 100;
+            const pagoMensual = monto * (tasaMensual * Math.pow(1 + tasaMensual, meses)) / (Math.pow(1 + tasaMensual, meses) - 1);
+            const totalPagar = pagoMensual * meses;
+            const intereses = totalPagar - monto;
+            
+            document.getElementById('pagoMensual').textContent = formatMoney(pagoMensual);
+            document.getElementById('totalIntereses').textContent = formatMoney(intereses);
+            document.getElementById('totalPagar').textContent = formatMoney(totalPagar);
+            document.getElementById('creditoResult').classList.add('show');
+        });
+
+        // Calculadora de Ahorro
+        document.getElementById('ahorroForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const mensual = parseFloat(document.getElementById('ahorroMensual').value);
+            const tasa = parseFloat(document.getElementById('tasaAhorro').value) / 100;
+            const anos = parseInt(document.getElementById('plazoAhorro').value);
+            
+            const meses = anos * 12;
+            const tasaMensual = tasa / 12;
+            
+            const futuroValor = mensual * (((Math.pow(1 + tasaMensual, meses) - 1) / tasaMensual) * (1 + tasaMensual));
+            const totalAportado = mensual * meses;
+            const intereses = futuroValor - totalAportado;
+            
+            document.getElementById('totalAhorrado').textContent = formatMoney(totalAportado);
+            document.getElementById('interesesGanados').textContent = formatMoney(intereses);
+            document.getElementById('totalFinal').textContent = formatMoney(futuroValor);
+            document.getElementById('ahorroResult').classList.add('show');
+        });
+
+        // Calculadora de Inversión
+        document.getElementById('inversionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const inicial = parseFloat(document.getElementById('capitalInicial').value);
+            const mensual = parseFloat(document.getElementById('aportacionMensual').value);
+            const tasa = parseFloat(document.getElementById('tasaInversion').value) / 100;
+            const anos = parseInt(document.getElementById('plazoInversion').value);
+            
+            const meses = anos * 12;
+            const tasaMensual = tasa / 12;
+            
+            const valorInicial = inicial * Math.pow(1 + tasaMensual, meses);
+            const valorAportaciones = mensual * (((Math.pow(1 + tasaMensual, meses) - 1) / tasaMensual) * (1 + tasaMensual));
+            const valorFinal = valorInicial + valorAportaciones;
+            const totalInvertido = inicial + (mensual * meses);
+            const rendimientos = valorFinal - totalInvertido;
+            
+            document.getElementById('totalInvertido').textContent = formatMoney(totalInvertido);
+            document.getElementById('rendimientos').textContent = formatMoney(rendimientos);
+            document.getElementById('valorFinal').textContent = formatMoney(valorFinal);
+            document.getElementById('inversionResult').classList.add('show');
+        });
+    </script>
+</body>
+</html>
